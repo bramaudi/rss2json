@@ -1,7 +1,13 @@
 <?php
-  
+
+$url = $_GET['url'];
+
+if (empty($url)) {
+    die('Parameter `url` cannot be empty');
+}
+
 // Storing the elements of the webpage into an array
-$source_code = file($_GET['url']);
+$source_code = file($url);
 $xml = '';
 
 header('Access-Control-Allow-Origin: *');
