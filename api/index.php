@@ -1,6 +1,6 @@
 <?php
 
-require_once './Feed.php';
+require_once 'Feed.php';
 
 $url = $_GET['url'];
 
