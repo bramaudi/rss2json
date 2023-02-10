@@ -1,11 +1,11 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use FeedIo\Feed;
 use FeedIo\Parser\XmlParser;
 use FeedIo\Reader\Document;
+use FeedIo\Standard\Atom;
 use FeedIo\Standard\Rss;
-
-require_once __DIR__ . '/../vendor/autoload.php';
 
 $url = $_GET['url'];
 $error = 0;
@@ -14,18 +14,45 @@ if (empty($url)) {
     $error = 1;
 }
 
+$data = file_get_contents($url);
+
 // new DateTimeBuilder : it will be used by the parser to convert formatted dates into DateTime instances
 $dateTimeBuilder = new \FeedIo\Rule\DateTimeBuilder();
 
-// new Standard\\Rss : it will provide all standard specific rules to the parser
-$standard = new Rss($dateTimeBuilder);
+$xml = new SimpleXMLElement($data, LIBXML_NOWARNING | LIBXML_NOERROR | LIBXML_NOCDATA);
+if ($xml->channel) {
+    $standard = new Rss($dateTimeBuilder);
+} else {
+    if (!in_array('http://www.w3.org/2005/Atom', $xml->getDocNamespaces(), true)
+        && !in_array('http://purl.org/atom/ns#', $xml->getDocNamespaces(), true)
+    ) {
+        throw new Exception('Invalid feed.');
+    }
+    $standard = new Atom($dateTimeBuilder);
+}
 
 $feedIo = new XmlParser($standard, new \Psr\Log\NullLogger());
 
-// we load it using the Dom library
-$document = new Document(file_get_contents($url));
+$rss = $feedIo->parse(new Document($data), new Feed);
 
-$result = $feedIo->parse($document, new Feed);
+$items = [];
+foreach ($rss as $item) {
+    $items[] = $item->toArray();
+}
+
+$data = [
+    'channel' => [
+        'url' => $rss->getUrl(),
+        'title' => $rss->getTitle(),
+        'link' => $rss->getLink(),
+        'description' => $rss->getDescription(),
+        'image' => $rss->getLogo(),
+        'author' => $rss->getAuthor(),
+        'language' => $rss->getLanguage(),
+        'lastModified' => $rss->getLastModified(),
+    ],
+    'items' => $items
+];
 
 header('Content-type: application/json');
-echo json_encode($result);
+echo json_encode($data);
