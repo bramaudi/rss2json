@@ -1,13 +1,21 @@
 <?php
 
-require_once 'Feed.php';
+use FeedIo\Adapter\Http\Client;
+use FeedIo\FeedIo;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $url = $_GET['url'];
+$error = 0;
 
 if (empty($url)) {
-    die('Parameter `url` cannot be empty');
+    $error = 1;
 }
 
-$rss = Feed::load($url);
+$client = new Client(new Symfony\Component\HttpClient\HttplugClient());
+$feedIo = new FeedIo($client);
 
-echo $rss;
+$result = $feedIo->read($url);
+
+header('Content-type: application/json');
+echo json_encode($result->getFeed());
