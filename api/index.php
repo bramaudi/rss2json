@@ -42,7 +42,7 @@ foreach ($rss as $item) {
 
 $data = [
     'channel' => [
-        'url' => $rss->getUrl(),
+        'url' => $url,
         'title' => $rss->getTitle(),
         'link' => $rss->getLink(),
         'description' => $rss->getDescription(),
