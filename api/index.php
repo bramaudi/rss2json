@@ -12,12 +12,12 @@ $errorMsg = null;
 $data = [];
 
 try {
-    $data = file_get_contents($url);
+    $html = file_get_contents($url);
 
     // new DateTimeBuilder : it will be used by the parser to convert formatted dates into DateTime instances
     $dateTimeBuilder = new \FeedIo\Rule\DateTimeBuilder();
 
-    $xml = new SimpleXMLElement($data, LIBXML_NOWARNING | LIBXML_NOERROR | LIBXML_NOCDATA);
+    $xml = new SimpleXMLElement($html, LIBXML_NOWARNING | LIBXML_NOERROR | LIBXML_NOCDATA);
 
     if ($xml->channel) {
         $standard = new Rss($dateTimeBuilder);
@@ -32,7 +32,7 @@ try {
 
     $feedIo = new XmlParser($standard, new \Psr\Log\NullLogger());
 
-    $rss = $feedIo->parse(new Document($data), new Feed);
+    $rss = $feedIo->parse(new Document($html), new Feed);
 
     $items = [];
     foreach ($rss as $item) {
