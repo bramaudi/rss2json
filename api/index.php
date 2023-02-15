@@ -8,22 +8,23 @@ use FeedIo\Standard\Atom;
 use FeedIo\Standard\Rss;
 
 $url = $_GET['url'];
-$errorMsg = 0;
+$errorMsg = null;
 
-if (empty($url)) {
-    $errorMsg = '`url` parameter is needed';
-}
+$catchErrorMsg = function (Closure $func) use ($errorMsg) {
+    try {
+        return $func();
+    } catch (Exception $e) {
+        $errorMsg = $e->getMessage();
+    }
+};
 
-try {
-    $data = file_get_contents($url);
-} catch (Exception $e) {
-    $errorMsg = $e->getMessage();
-}
+$data = $catchErrorMsg(fn() => file_get_contents($url));
 
 // new DateTimeBuilder : it will be used by the parser to convert formatted dates into DateTime instances
 $dateTimeBuilder = new \FeedIo\Rule\DateTimeBuilder();
 
-$xml = new SimpleXMLElement($data, LIBXML_NOWARNING | LIBXML_NOERROR | LIBXML_NOCDATA);
+$xml = $catchErrorMsg(fn() => new SimpleXMLElement($data, LIBXML_NOWARNING | LIBXML_NOERROR | LIBXML_NOCDATA));
+
 if ($xml->channel) {
     $standard = new Rss($dateTimeBuilder);
 } else {
