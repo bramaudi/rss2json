@@ -13,6 +13,8 @@ $errorMsg = null;
 $data = [];
 
 try {
+    if (empty($url)) throw new Exception("URL cannot be empty");
+    
     $html = file_get_contents($url);
 
     // new DateTimeBuilder : it will be used by the parser to convert formatted dates into DateTime instances
