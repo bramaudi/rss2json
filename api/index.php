@@ -8,13 +8,17 @@ use FeedIo\Standard\Atom;
 use FeedIo\Standard\Rss;
 
 $url = $_GET['url'];
-$error = 0;
+$errorMsg = 0;
 
 if (empty($url)) {
-    $error = 1;
+    $errorMsg = '`url` parameter is needed';
 }
 
-$data = file_get_contents($url);
+try {
+    $data = file_get_contents($url);
+} catch (Exception $e) {
+    $errorMsg = $e->getMessage();
+}
 
 // new DateTimeBuilder : it will be used by the parser to convert formatted dates into DateTime instances
 $dateTimeBuilder = new \FeedIo\Rule\DateTimeBuilder();
@@ -55,4 +59,8 @@ $data = [
 ];
 
 header('Content-type: application/json');
-echo json_encode($data);
+echo json_encode([
+    'status' => !$errorMsg ? 'success' : 'error',
+    'message' => $errorMsg ?? null,
+    ...$data
+]);
