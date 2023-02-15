@@ -9,6 +9,7 @@ use FeedIo\Standard\Rss;
 
 $url = $_GET['url'];
 $errorMsg = null;
+$data = [];
 
 try {
     $data = file_get_contents($url);
