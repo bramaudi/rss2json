@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use FeedIo\Feed;
@@ -56,7 +57,6 @@ try {
     $errorMsg = $e->getMessage();
 }
 
-header('Content-type: application/json');
 echo json_encode([
     'status' => !$errorMsg ? 'success' : 'error',
     'message' => $errorMsg ?? null,
