@@ -9,6 +9,7 @@ use FeedIo\Standard\Atom;
 use FeedIo\Standard\Rss;
 
 $url = $_GET['url'];
+$check = $_GET['check'] === 'true' ? true : false;
 $errorMsg = null;
 $data = [];
 
@@ -60,8 +61,16 @@ try {
 }
 
 header('Content-Type: application/json');
-echo json_encode([
-    'status' => !$errorMsg ? 'success' : 'error',
-    'message' => $errorMsg ?? null,
-    ...$data
-]);
+if ($check) {
+    echo json_encode([
+        'status' => !$errorMsg ? 'success' : 'error',
+        'message' => $errorMsg ?? null,
+        'lastModified' => $rss->getLastModified()
+    ]);
+} else {
+    echo json_encode([
+        'status' => !$errorMsg ? 'success' : 'error',
+        'message' => $errorMsg ?? null,
+        ...$data
+    ]);
+}
