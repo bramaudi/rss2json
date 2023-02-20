@@ -54,23 +54,15 @@ try {
             'language' => $rss->getLanguage(),
             'lastModified' => $rss->getLastModified(),
         ],
-        'items' => $items
+        'items' => $check ? [] : $items
     ];
 } catch (Exception $e) {
     $errorMsg = $e->getMessage();
 }
 
 header('Content-Type: application/json');
-if ($check) {
-    echo json_encode([
-        'status' => !$errorMsg ? 'success' : 'error',
-        'message' => $errorMsg ?? null,
-        'lastModified' => $rss->getLastModified()
-    ]);
-} else {
-    echo json_encode([
-        'status' => !$errorMsg ? 'success' : 'error',
-        'message' => $errorMsg ?? null,
-        ...$data
-    ]);
-}
+echo json_encode([
+    'status' => !$errorMsg ? 'success' : 'error',
+    'message' => $errorMsg ?? null,
+    ...$data
+]);
