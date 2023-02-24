@@ -9,7 +9,7 @@ use FeedIo\Standard\Atom;
 use FeedIo\Standard\Rss;
 
 $url = $_GET['url'];
-$check = $_GET['check'] === 'true' ? true : false;
+$type_hash = $_GET['type'] === 'hash' ? true : false;
 $errorMsg = null;
 $data = [];
 
@@ -49,12 +49,16 @@ try {
             'title' => $rss->getTitle(),
             'link' => $rss->getLink(),
             'description' => $rss->getDescription(),
-            'image' => $rss->getLogo(),
-            'author' => $rss->getAuthor(),
-            'language' => $rss->getLanguage(),
-            'lastModified' => $rss->getLastModified(),
         ],
-        'items' => $check ? [] : $items
+        'items' => array_map(function ($item)
+        {
+            unset($item['categories']);
+            unset($item['publicId']);
+            unset($item['host']);
+            unset($item['elements']);
+            unset($item['medias']);
+            return $item;
+        }, $items)
     ];
 } catch (Exception $e) {
     $errorMsg = $e->getMessage();
@@ -64,5 +68,6 @@ header('Content-Type: application/json');
 echo json_encode([
     'status' => !$errorMsg ? 'success' : 'error',
     'message' => $errorMsg ?? null,
-    ...$data
+    'hash' => md5(json_encode($data)),
+    ...($type_hash ? [] : $data)
 ]);
