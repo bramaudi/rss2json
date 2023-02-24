@@ -59,15 +59,16 @@ try {
         'channel' => [
             'url' => $url,
             'title' => $rss->getTitle(),
-            'link' => $rss->getLink(),
             'description' => $rss->getDescription(),
         ],
         'items' => array_map(function ($item) {
+            $item['url'] = $item['link'];
             unset($item['categories']);
             unset($item['publicId']);
             unset($item['host']);
             unset($item['elements']);
             unset($item['medias']);
+            unset($item['link']);
             return $item;
         }, $items)
     ];
